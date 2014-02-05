@@ -9,6 +9,6 @@ package flashbang.apps.friendmap;
 
 public final class Manifest {
     public static final class permission {
-        public static final String MAPS_RECEIVE="info.androidhive.googlemapsv2.permission.MAPS_RECEIVE";
+        public static final String MAPS_RECEIVE="flashbang.apps.friendmap.permission.MAPS_RECEIVE";
     }
 }
