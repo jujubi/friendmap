@@ -58,7 +58,7 @@ public class MainActivity extends Activity {
 	 boolean pickFriendsWhenSessionOpened;
 	 Context ctx;
 	 
-	Set<LatLong> seen = new HashSet<LatLong>();
+	ArrayList<LatLong> all_seen = new ArrayList<LatLong>();
 	 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -356,20 +356,28 @@ public class MainActivity extends Activity {
 	    {
 	    	
 	    	final String name = user.getName();
-	    	final double lat = user.getLatitude();
-	    	final double lon = user.getLongitude(); 
+	    	double lat = user.getLatitude();
+	    	double lon = user.getLongitude(); 
 	    	
-	    	LatLong latlong = new LatLong(lat, lon);
-	    	double offset = 0.00002f;
 	    	
-	    	while(seen.contains(latlong))
+	    	double offset = 0.1f;
+	    		
+	    	for(int i=0;i<all_seen.size();i++)
 	    	{
-	    		latlong = new LatLong(lat+offset, lon+offset);
-	    		offset+=0.00002f;
-	    		Log.d("LOL",offset+"");
+	    		if(all_seen.get(i).latitude==lat && all_seen.get(i).longitude == lon)
+	    		{
+	    			//lat+=offset;
+	    			//lon +=offset;
+	    		}
 	    	}
 	    	
-	    	seen.add(latlong);	    	
+	    	LatLong latlong = new LatLong(lat, lon);
+	    	//Log.d("LOL",lat+" "+lon);
+		    all_seen.add(latlong);
+	    	
+		    final double lat_fin = lat;
+		    final double lon_fin = lon;
+	    	   	
 	    	
 	    	
 	    	AQuery androidAQuery=new AQuery(this);
@@ -397,7 +405,7 @@ public class MainActivity extends Activity {
         	   
 
         	    	//add marker to Map
-        	    	googleMap.addMarker(new MarkerOptions().position(new LatLng(lat,lon))
+        	    	googleMap.addMarker(new MarkerOptions().position(new LatLng(lat_fin,lon_fin))
         	    			.title(name)
         	    	    .icon(BitmapDescriptorFactory.fromBitmap(bmp))
         	    	    // Specifies the anchor to be at a particular point in the marker image.
