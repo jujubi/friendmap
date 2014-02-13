@@ -34,6 +34,8 @@ import com.facebook.model.GraphObject;
 import com.facebook.model.GraphUser;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 
 
 
@@ -75,17 +77,7 @@ public class MainActivity extends Activity {
 		 
 		 googleMap.setMyLocationEnabled(true);
 		
-		/* 
-		// latitude and longitude
-		 double latitude = 12.9667;
-		 double longitude = 77.5667;
-		  
-		 // create marker
-		 MarkerOptions marker = new MarkerOptions().position(new LatLng(latitude, longitude)).title("Bangalore ");
-		  
-		 // adding marker
-		 googleMap.addMarker(marker);*/
-		 
+		
 	}
 	
 	
@@ -213,12 +205,6 @@ public class MainActivity extends Activity {
 				   }
 				   getlocations(id,session);
 				   
-				   
-				   
-				   
-				   
-				  
-				   			   
 			}
 			else
 			{
@@ -226,8 +212,6 @@ public class MainActivity extends Activity {
 			}
 			 }
 		});
-		  
-		  
 		  
 		  
 	    }
@@ -246,8 +230,8 @@ public class MainActivity extends Activity {
 	    void getlocations(String id,Session session)
 	    {
 	    	 
-			  
-			  String fqlQuery = "SELECT uid,current_location FROM user WHERE uid in ("+id+")";
+			  final ArrayList<User> users_list = new ArrayList<User>();
+			  String fqlQuery = "SELECT name,uid,current_location FROM user WHERE uid in ("+id+")";
 		    		
 		    		Bundle params = new Bundle();
 		    		params.putString("q", fqlQuery);
@@ -267,7 +251,6 @@ public class MainActivity extends Activity {
 		    			   		protected Long doInBackground(String[]... params) {
 		    			   		
 		    			   			
-		    			   		
 		    			   		GraphObject obj = response_from_fb.getGraphObject();
 		    			   		if(obj == null) 
 		    			   		{
@@ -283,16 +266,23 @@ public class MainActivity extends Activity {
 		    		        	try {
 		    		        		json2=  obj.getInnerJSONObject();
 		    		        		data= json2.getJSONArray("data");
+		    		        		
 		    		        		for(int j=0;j<data.length();j++)
 		    		        		{
 		    		        				rec2 = data.getJSONObject(j);
 		    		        				//rec3=
 		    		        				String uid=rec2.getString("uid");
+		    		        				String nam = rec2.getString("name");
 		    		        				if(!rec2.isNull("current_location"))
 		    		        				{
 		    		        				rec3=rec2.getJSONObject("current_location");
-		    		        				Log.d("LOL",uid+" "+rec3.getDouble("latitude")+" "+rec3.getDouble("longitude"));
-		    		        				
+		    		        				//Log.d("LOL",uid+" "+rec3.getDouble("latitude")+" "+rec3.getDouble("longitude"));
+		    		        				User user = new User();
+		    		        				user.setUid(uid);
+		    		        				user.setLatitude(rec3.getDouble("latitude"));
+		    		        				user.setLongitude(rec3.getDouble("longitude"));
+		    		        				user.setName(nam);
+		    		        				users_list.add(user);
 		    		        				}
 	 	    		        			
 		    		        		}
@@ -328,7 +318,7 @@ public class MainActivity extends Activity {
 		    			   				@Override
 		    			   				protected void onPostExecute(Long result){
 		    			   		
-		    			   			
+		    			   						displayLocOnMap(users_list);
 		    			   				}
 		    			   		
 		    			        	}.execute();
@@ -342,6 +332,27 @@ public class MainActivity extends Activity {
 		    		});
 		    		Request.executeBatchAsync(request);
 			  
+	    }
+	    
+	    
+	    void displayLocOnMap(ArrayList<User> users_list)
+	    {
+	    	
+	    	 // create marker
+			 MarkerOptions marker;
+			 
+			  
+			
+	    	for(int i=0;i<users_list.size();i++)
+	    	{
+	    		Log.d("LOL",users_list.get(i).getLatitude()+" "+users_list.get(i).getLongitude());
+	    		
+	    		
+	    		marker =  new MarkerOptions().position(new LatLng(users_list.get(i).getLatitude(), users_list.get(i).getLongitude())).title(users_list.get(i).getName());
+	    		 // adding marker
+				 googleMap.addMarker(marker);
+	    		
+	    	}
 	    }
 	    
 	    
