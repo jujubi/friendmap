@@ -1,7 +1,9 @@
 package flashbang.apps.friendmap;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -10,6 +12,10 @@ import org.json.JSONObject;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
@@ -19,6 +25,9 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import com.androidquery.AQuery;
+import com.androidquery.callback.AjaxCallback;
+import com.androidquery.callback.AjaxStatus;
 import com.facebook.HttpMethod;
 import com.facebook.Request;
 import com.facebook.Request.GraphUserListCallback;
@@ -34,6 +43,7 @@ import com.facebook.model.GraphObject;
 import com.facebook.model.GraphUser;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
@@ -47,6 +57,8 @@ public class MainActivity extends Activity {
     private UiLifecycleHelper lifecycleHelper;
 	 boolean pickFriendsWhenSessionOpened;
 	 Context ctx;
+	 
+	Set<LatLong> seen = new HashSet<LatLong>();
 	 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -187,6 +199,8 @@ public class MainActivity extends Activity {
 	    
 	  private void onClickPickFriends() {
 	    
+		  
+		  Toast.makeText(ctx, "Fetching friends and plotting them....", Toast.LENGTH_LONG).show();
 		  final Session session = Session.openActiveSessionFromCache(getApplicationContext());
 		  
 		  
@@ -257,7 +271,7 @@ public class MainActivity extends Activity {
 		    			   			Log.d("LOL","Its null!!");
 		    			   			cancel(true);
 		    			   		}
-		    			   	//	Log.d("LOL",obj.getInnerJSONObject()+"");
+		    			   //	Log.d("LOL",obj.getInnerJSONObject()+"");
 		    		        	
 		    		        	JSONObject json2;
 		    		        	JSONArray data = null;	
@@ -282,6 +296,7 @@ public class MainActivity extends Activity {
 		    		        				user.setLatitude(rec3.getDouble("latitude"));
 		    		        				user.setLongitude(rec3.getDouble("longitude"));
 		    		        				user.setName(nam);
+		    		        				user.setImg("http://graph.facebook.com/"+uid+"/picture?type=square");
 		    		        				users_list.add(user);
 		    		        				}
 	 	    		        			
@@ -335,25 +350,116 @@ public class MainActivity extends Activity {
 	    }
 	    
 	    
+	    
+	    
+	    void showMarker(User user)
+	    {
+	    	
+	    	final String name = user.getName();
+	    	final double lat = user.getLatitude();
+	    	final double lon = user.getLongitude(); 
+	    	
+	    	LatLong latlong = new LatLong(lat, lon);
+	    	double offset = 0.00002f;
+	    	
+	    	while(seen.contains(latlong))
+	    	{
+	    		latlong = new LatLong(lat+offset, lon+offset);
+	    		offset+=0.00002f;
+	    		Log.d("LOL",offset+"");
+	    	}
+	    	
+	    	seen.add(latlong);	    	
+	    	
+	    	
+	    	AQuery androidAQuery=new AQuery(this);
+	    	
+	    	//AQuery ajax = androidAQuery.ajax("http://1.gravatar.com/avatar/17b0abd9e24dd27c85bf13b0cc8de494?s=96&d=http%3A%2F%2F1.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D96&r=PG",Bitmap.class,0,new AjaxCallback<Bitmap>(){
+	    	AQuery ajax = androidAQuery.ajax(user.getImg(),Bitmap.class,0,new AjaxCallback<Bitmap>(){
+                @Override
+                public void callback(String url, Bitmap object, AjaxStatus status) {
+                    super.callback(url, object, status);
+
+                    //You will get Bitmap from object.
+                    
+                	Bitmap.Config conf = Bitmap.Config.ARGB_8888;
+        	    	Bitmap bmp = Bitmap.createBitmap(80, 80, conf);
+        	    	Canvas canvas1 = new Canvas(bmp);
+
+        	    	// paint defines the text color,
+        	    	// stroke width, size
+        	    	Paint color = new Paint();
+        	    	color.setTextSize(20);
+        	    	color.setColor(Color.BLACK);
+
+        	    	//modify canvas
+        	    	canvas1.drawBitmap(object, 0,0, color);
+        	   
+
+        	    	//add marker to Map
+        	    	googleMap.addMarker(new MarkerOptions().position(new LatLng(lat,lon))
+        	    			.title(name)
+        	    	    .icon(BitmapDescriptorFactory.fromBitmap(bmp))
+        	    	    // Specifies the anchor to be at a particular point in the marker image.
+        	    	    .anchor(0.5f, 1));
+                    
+                    
+                    
+                    
+                    
+                    
+                }
+
+            });
+	    	
+	    	
+	    	
+	    	
+	    	
+	    	
+	    	
+	    	 
+	    
+	    	
+	    	
+	    	
+	    	
+	    	
+	    	/*
+	    	// create marker
+			 MarkerOptions marker;
+			 marker =  new MarkerOptions().position(new LatLng(lat,lon))
+						.title(name);
+			 // adding marker
+			 googleMap.addMarker(marker);*/
+	    }
+	    
 	    void displayLocOnMap(ArrayList<User> users_list)
 	    {
 	    	
-	    	 // create marker
-			 MarkerOptions marker;
-			 
-			  
-			
 	    	for(int i=0;i<users_list.size();i++)
 	    	{
-	    		Log.d("LOL",users_list.get(i).getLatitude()+" "+users_list.get(i).getLongitude());
-	    		
-	    		
-	    		marker =  new MarkerOptions().position(new LatLng(users_list.get(i).getLatitude(), users_list.get(i).getLongitude())).title(users_list.get(i).getName());
-	    		 // adding marker
-				 googleMap.addMarker(marker);
+	    		//Log.d("LOL",users_list.get(i).getLatitude()+" "+users_list.get(i).getLongitude());
+	    		showMarker(users_list.get(i));
+	    			
 	    		
 	    	}
 	    }
 	    
 	    
+	    class LatLong
+	    {
+	    	public double latitude;
+	    	public double longitude;
+	    	public LatLong(double lat,double lon)
+	    	{
+	    		this.latitude=lat;
+	    		this.longitude=lon;
+	    	}
+	    }
+	    
+	    
 }
+
+
+

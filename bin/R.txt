@@ -83,7 +83,7 @@ int drawable com_facebook_list_divider 0x7f02000c
 int drawable com_facebook_list_section_header_background 0x7f02000d
 int drawable com_facebook_loginbutton_silver 0x7f02000e
 int drawable com_facebook_logo 0x7f02000f
-int drawable com_facebook_picker_default_separator_color 0x7f02003d
+int drawable com_facebook_picker_default_separator_color 0x7f02003e
 int drawable com_facebook_picker_item_background 0x7f020010
 int drawable com_facebook_picker_list_focused 0x7f020011
 int drawable com_facebook_picker_list_longpressed 0x7f020012
@@ -124,11 +124,12 @@ int drawable common_signin_btn_text_normal_dark 0x7f020034
 int drawable common_signin_btn_text_normal_light 0x7f020035
 int drawable common_signin_btn_text_pressed_dark 0x7f020036
 int drawable common_signin_btn_text_pressed_light 0x7f020037
-int drawable ic_launcher 0x7f020038
-int drawable ic_plusone_medium_off_client 0x7f020039
-int drawable ic_plusone_small_off_client 0x7f02003a
-int drawable ic_plusone_standard_off_client 0x7f02003b
-int drawable ic_plusone_tall_off_client 0x7f02003c
+int drawable defaul 0x7f020038
+int drawable ic_launcher 0x7f020039
+int drawable ic_plusone_medium_off_client 0x7f02003a
+int drawable ic_plusone_small_off_client 0x7f02003b
+int drawable ic_plusone_standard_off_client 0x7f02003c
+int drawable ic_plusone_tall_off_client 0x7f02003d
 int id com_facebook_login_activity_progress_bar 0x7f04000a
 int id com_facebook_picker_activity_circle 0x7f040009
 int id com_facebook_picker_checkbox 0x7f04000c
